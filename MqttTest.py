@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 class MqttTest:
     "test mqtt some api like pubush/batchPub.."
+    # api base url
     __baseUrl = ""
     __appKey = ""
     __appSecret=""
@@ -35,7 +36,7 @@ class MqttTest:
         # return jsonBody
 
     def __genPatchMsg(self, index):
-        msgContent = {"topic": "T1D_TrackingReport", "payload": json.dumps({"msgId": index, "timestamp": int(time.time())}), "qos": 2, "client_id":"T18T1D123456789", "retain": False}
+        msgContent = {"topic": "T1D_TrackingReport", "payload": json.dumps({"msgId": index, "timestamp": self.__getMilliTime()}), "qos": 2, "client_id":"T18T1D123456789", "retain": False}
         return json.dumps(msgContent)
 
     def patchPublishMsg(self, total):
@@ -46,7 +47,7 @@ class MqttTest:
         print('dir: ' + dirStr + ' exist: ' + str(dirExist))
         if not dirExist:
             os.mkdir(dirStr)
-        fileName = dirStr + 'sent_' + str(time.time()) + '.txt'
+        fileName = dirStr + 'sent_' + str(int(time.time())) + '.txt'
         print('file:', fileName)
         with open(fileName, 'w+') as fo:
             for future in as_completed(allTasks):
@@ -59,10 +60,19 @@ class MqttTest:
         'save all send msg to data analysis later'
         pass
 
+    def __getMilliTime(self):
+        'get current timestamp in milliseconds'
+        return int(time.time() * 1000)
+
 appKeyStr = "20f4eb16851a9"
 appSecretStr = "MzAwNjIzODEzOTM4OTE5ODY3OTczNTE1NjY4NzY1NDA5MjI"
-msgContent = {"topic": "T1D_TrackingReport", "payload": "good morning", "qos": 2, "client_id":"T18T1D123456789", "retain": False}
-print("content:", json.dumps(msgContent))
+msgContent = {"topic": "T1D_TrackingReport", "payload": json.dumps({"msgId": 1, "timestamp": int(time.time() * 1000)}), "qos": 2, "client_id":"T18T1D123456789", "retain": False}
+msgContentStr = json.dumps(msgContent)
+# msgContentJson = json.loads(msgContentStr)
+# print(msgContentJson)
+# payloadJson = json.loads(msgContentJson['payload'])
+# print(payloadJson)
+# print('msgId: ' + str(payloadJson['msgId']) + ' timestamp: ' + str(payloadJson['timestamp']))
 apiTest = MqttTest(appKeyStr, appSecretStr)
-# apiTest.publishMsg(json.dumps(msgContent))
-apiTest.patchPublishMsg(10)
+# apiTest.publishMsg(msgContentStr)
+apiTest.patchPublishMsg(50)
